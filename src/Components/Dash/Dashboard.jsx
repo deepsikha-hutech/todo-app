@@ -1,10 +1,12 @@
 //
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, Button } from "antd";
 import "./Dashboard.css";
 import CustomerList from "./CustomerList";
 import AddEditToDo from "./AddEditToDo";
+import Cookie from "js-cookies";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const [activeKey, setActiveKey] = useState("3");
@@ -19,10 +21,17 @@ const Dashboard = () => {
   ]);
   const [editCustomer, setEditCustomer] = useState(null);
   const [mode, setMode] = useState("add");
+  const navigate = useNavigate();
 
   const onChange = (key) => {
     setActiveKey(key);
   };
+
+  useEffect(() => {
+    if (!Cookie.getItem("accessToken")) {
+      navigate("/");
+    }
+  }, []);
 
   const handleEditClick = (customer) => {
     setEditCustomer(customer);

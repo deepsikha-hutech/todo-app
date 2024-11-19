@@ -3,6 +3,8 @@
 import React, { useState } from "react";
 import { Form, Input, Button, Select } from "antd";
 import "./registration.css";
+import axios from "axios";
+import variable from "../../assets/variables";
 
 function Registration() {
   const [loginData, setLoginData] = useState({
@@ -15,8 +17,23 @@ function Registration() {
     console.log(`selected ${value}`);
   };
 
-  const handleSubmit = () => {
-    console.log("Login data:", loginData);
+  const handleSubmit = async () => {
+    try {
+      const { data } = await axios.post(
+        `${variable?.TODO_API_URL}/api/v1/auth/signup`,
+        loginData
+      );
+
+      console.log({ data });
+      if (data?.user) {
+        location.href = "http://localhost:5173/login";
+      } else {
+        alert("Signup Failed, try again");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Signup Failed, try again");
+    }
   };
 
   return (
