@@ -1,13 +1,11 @@
 import React, { useEffect } from "react";
 import { Form, Row, Col, Input, DatePicker, Button } from "antd";
 import dayjs from "dayjs";
+import axios from "axios";
+import variable from "../../assets/variables";
+import Cookie from "js-cookies";
 
-const AddEditToDo = ({
-  mode,
-  customer,
-  onAddCustomerSuccess,
-  onEditCustomerSuccess,
-}) => {
+const AddEditToDo = ({ mode, customer, onSaveSuccess }) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -16,21 +14,56 @@ const AddEditToDo = ({
       form.setFieldsValue({
         ...customer,
         addedOn: dayjs(customer?.addedOn),
-        deadline: dayjs(customer?.deadline),
+        deadLine: dayjs(customer?.deadLine),
       });
     } else {
       form.resetFields();
     }
   }, [mode, customer]);
 
-  const handleFormSubmit = (values) => {
+  const handleFormSubmit = async (values) => {
     console.log({ values });
+    const token = Cookie.getItem("accessToken");
+
     if (mode === "add") {
-      onAddCustomerSuccess && onAddCustomerSuccess(values);
+      try {
+        const { data } = await axios.post(
+          `${variable?.TODO_API_URL}/api/v1/todo/add`,
+          values,
+          { headers: { Authorization: token } }
+        );
+
+        if (data?.todo?._id) {
+          alert("todo added");
+
+          form.resetFields();
+          onSaveSuccess(data.todo, "add");
+        } else {
+          alert(" Failed to add todo, try again");
+        }
+      } catch (error) {
+        console.log(error);
+        alert("Signup Failed, try again");
+      }
     } else if (mode === "edit") {
-      onEditCustomerSuccess && onEditCustomerSuccess(values);
+      try {
+        const { data } = await axios.put(
+          `${variable?.TODO_API_URL}/api/v1/todo/update/${customer?._id}`,
+          values,
+          { headers: { Authorization: token } }
+        );
+
+        if (data?.todo?._id) {
+          form.resetFields();
+          onSaveSuccess(data.todo, "edit");
+        } else {
+          alert(" Failed to update todo, try again");
+        }
+      } catch (error) {
+        console.log(error);
+        alert("something went wrong, try again");
+      }
     }
-    form.resetFields();
   };
 
   const onChange = (_, dateStr) => {
@@ -68,12 +101,11 @@ const AddEditToDo = ({
               >
                 <Input />
               </Form.Item>
-              <Form.Item name="addedOn" label="AddedOn">
-                <DatePicker />
+              <Form.Item name="addedOn" label="Added On">
+                <DatePicker showTime />
               </Form.Item>
-              <Form.Item name="deadline" label="Deadline">
-                <DatePicker />
-                <DatePicker onChange={onChange} />
+              <Form.Item name="deadLine" label="Deadline">
+                <DatePicker showTime onChange={onChange} />
               </Form.Item>
               <Button type="primary" htmlType="submit">
                 {mode === "add" ? "Save" : "Update"}
