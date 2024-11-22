@@ -1,51 +1,65 @@
 //
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Tabs, Button } from "antd";
 import "./Dashboard.css";
-import CustomerList from "./CustomerList";
+import TodoList from "./TodoList";
 import AddEditToDo from "./AddEditToDo";
+import Cookie from "js-cookies";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import variable from "../../assets/variables";
 
 const Dashboard = () => {
   const [activeKey, setActiveKey] = useState("3");
-  const [customers, setCustomers] = useState([
-    {
-      title: "todo Task",
-      description: "Description of the todo",
-      addedOn: "11-13-2024",
-      deadline: "11-15-2024",
-      id: 1,
-    },
-  ]);
-  const [editCustomer, setEditCustomer] = useState(null);
+
+  const [todoCount, setTodoCount] = useState(0);
+
+  const [params, setParams] = useState({ page: 1, limit: 10, search: null });
+  const [todos, setTodos] = useState([]);
+  const [editTodo, setEditTodo] = useState(null);
   const [mode, setMode] = useState("add");
+  const navigate = useNavigate();
 
   const onChange = (key) => {
     setActiveKey(key);
   };
 
-  const handleEditClick = (customer) => {
-    setEditCustomer(customer);
-    alert("edited");
+  useEffect(() => {
+    if (!Cookie.getItem("accessToken")) {
+      navigate("/");
+    } else {
+      getTodos();
+    }
+  }, []);
+
+  async function getTodos() {
+    try {
+      const token = Cookie.getItem("accessToken");
+      // alert(token);
+
+      const { data } = await axios.get(
+        `${variable?.TODO_API_URL}/api/v1/todo/getall`,
+        { params, headers: { Authorization: token } }
+      );
+      setTodos(data?.todo);
+    } catch (error) {
+      console.log(error);
+      alert("something went wrong, try again");
+    }
+  }
+
+  const handleEditClick = (todo) => {
+    // console.log("Editing this todo:", todo);
+    setEditTodo(todo);
     setActiveKey("2");
     setMode("edit");
     // setActiveKey("2");
   };
 
-  const onSaveSuccess = (editCustomer) => {
-    alert("save");
-    setActiveKey("2");
-  };
-
-  const handleEdit = (id) => {
-    alert("Edited");
-    onEditClick();
-    setActiveKey("2");
-  };
-
-  const handleSubmit = () => {
-    alert("saved");
-    setCustomers([]);
+  const onSaveSuccess = (editTodo, mode) => {
+    // alert("save");
+    setActiveKey("3");
   };
 
   const items = [
@@ -53,7 +67,7 @@ const Dashboard = () => {
       key: "1",
       //customer,onSaveSuccess
       label: "Add",
-      children: <AddEditToDo mode="add" onAddCustomerSuccess={onSaveSuccess} />,
+      children: <AddEditToDo mode="add" onSaveSuccess={onSaveSuccess} />,
     },
     {
       key: "2",
@@ -61,8 +75,8 @@ const Dashboard = () => {
       children: (
         <AddEditToDo
           mode="edit"
-          customer={editCustomer}
-          onEditCustomerSuccess={onSaveSuccess}
+          todo={editTodo}
+          onSaveSuccess={onSaveSuccess}
         />
       ),
     },
@@ -70,7 +84,12 @@ const Dashboard = () => {
       key: "3",
       label: "List",
       children: (
-        <CustomerList customers={customers} onEditClick={handleEditClick} />
+        <TodoList
+          todos={todos}
+          onEditClick={handleEditClick}
+          // onDeleteClick={deleteTodos}
+          // handleDelete={onDeleteSuccess}
+        />
       ),
     },
   ];

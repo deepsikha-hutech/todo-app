@@ -1,15 +1,32 @@
 import React, { useState } from "react";
 import "./loginPage.css";
+import axios from "axios";
+import variable from "../../assets/variables";
+import Cookies from "js-cookies";
 
 function LoginPage() {
   const [loginData, setLoginData] = useState({ email: "", password: "" });
 
-  function login(e) {
+  async function login(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
-    const formProps = Object.fromEntries(formData);
-    console.log(formProps);
-    alert("login success");
+    const { email, password } = Object.fromEntries(formData);
+    try {
+      const { data } = await axios.post(
+        `${variable?.TODO_API_URL}/api/v1/auth/signin`,
+        { email, password }
+      );
+
+      if (data?.token) {
+        Cookies.setItem("accessToken", data?.token, { expires: "7d" });
+        location.href = "http://localhost:5173/dashboard";
+      } else {
+        alert("Invalid credentials");
+      }
+    } catch (error) {
+      console.log(error);
+      alert("Invalid credentials.");
+    }
   }
 
   return (
