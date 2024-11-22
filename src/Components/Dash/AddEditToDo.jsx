@@ -5,21 +5,21 @@ import axios from "axios";
 import variable from "../../assets/variables";
 import Cookie from "js-cookies";
 
-const AddEditToDo = ({ mode, customer, onSaveSuccess }) => {
+const AddEditToDo = ({ mode, todo, onSaveSuccess }) => {
   const [form] = Form.useForm();
 
   useEffect(() => {
-    if (mode === "edit" && customer) {
-      console.log({ customer });
+    if (mode === "edit" && todo) {
+      console.log({ todo });
       form.setFieldsValue({
-        ...customer,
-        addedOn: dayjs(customer?.addedOn),
-        deadLine: dayjs(customer?.deadLine),
+        ...todo,
+        addedOn: dayjs(todo?.addedOn),
+        deadLine: dayjs(todo?.deadLine),
       });
     } else {
       form.resetFields();
     }
-  }, [mode, customer]);
+  }, [mode, todo]);
 
   const handleFormSubmit = async (values) => {
     console.log({ values });
@@ -48,7 +48,7 @@ const AddEditToDo = ({ mode, customer, onSaveSuccess }) => {
     } else if (mode === "edit") {
       try {
         const { data } = await axios.put(
-          `${variable?.TODO_API_URL}/api/v1/todo/update/${customer?._id}`,
+          `${variable?.TODO_API_URL}/api/v1/todo/update/${todo?._id}`,
           values,
           { headers: { Authorization: token } }
         );

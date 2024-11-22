@@ -5,11 +5,9 @@ import Cookie from "js-cookies";
 import axios from "axios";
 import variable from "../../assets/variables";
 
-const CustomerList = (props) => {
-  // const { customers, onEditClick } = props;
-  // const [editCustomer, setEditCustomer] = useState(null);
-  const [customers, setCustomers] = useState([]);
-  const [customerCount, setCustomerCount] = useState(0);
+const TodoList = (props) => {
+  const [todos, setTodos] = useState([]);
+  const [todoCount, setTodoCount] = useState(0);
 
   const [params, setParams] = useState({ page: 1, limit: 10, search: null });
 
@@ -31,7 +29,7 @@ const CustomerList = (props) => {
       );
 
       if (data?.todo?._id) {
-        if (customerCount - 1 == (params?.page - 1) * params?.limit) {
+        if (todoCount - 1 == (params?.page - 1) * params?.limit) {
           setParams({ ...params, page: params.page - 1 });
         } else getTodos();
       } else {
@@ -52,38 +50,13 @@ const CustomerList = (props) => {
         `${variable?.TODO_API_URL}/api/v1/todo/getall`,
         { params, headers: { Authorization: token } }
       );
-      setCustomers(data?.todo);
-      setCustomerCount(data?.totalCount);
+      setTodos(data?.todo);
+      setTodoCount(data?.totalCount);
     } catch (error) {
       console.log(error);
       alert("something went wrong, try again");
     }
   }
-
-  //   // alert("search");
-  //   if (e.key === "Enter") {
-  //     try {
-  //       const token = Cookie.getItem("accessToken");
-  //       const { data } = await axios.get(
-  //         `${variable?.TODO_API_URL}/api/v1/todo/getall`,
-  //         {
-  //           params,
-  //           headers: { Authorization: token },
-  //         }
-  //       );
-  //       // setCustomers(data?.todo);
-  //       if (data?.todo?._id) {
-  //         getTodos(data.todo, "search");
-  //         alert("todo found ");
-  //       } else {
-  //         alert(" Failed to search todo, try again");
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //       alert("something went wrong, try again");
-  //     }
-  //   }
-  // };
 
   const columns = [
     { title: "Title", dataIndex: "title", key: "title" },
@@ -121,12 +94,12 @@ const CustomerList = (props) => {
 
   return (
     <div>
-      <h2>Customer List</h2>
+      <h2>Todo List</h2>
       <Input
         className="search-input"
         name="search"
         autoComplete="true"
-        placeholder="Search by customer id, name"
+        placeholder="Search by todo title, description"
         type="text"
         value={params.search}
         onChange={handleSearchChange}
@@ -135,9 +108,9 @@ const CustomerList = (props) => {
 
       <Table
         columns={columns}
-        dataSource={customers}
+        dataSource={todos}
         pagination={{
-          total: customerCount,
+          total: todoCount,
           onChange: (page, limit) => {
             setParams({ ...params, page, limit });
           },
@@ -156,4 +129,4 @@ const CustomerList = (props) => {
   );
 };
 
-export default CustomerList;
+export default TodoList;
