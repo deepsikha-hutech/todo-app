@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Form, Input, Button } from "antd";
 import "./loginPage.css";
 import axios from "axios";
 import variable from "../../assets/variables";
@@ -32,41 +33,75 @@ function LoginPage() {
   return (
     <div className="login">
       <h1>Login</h1>
-      <form onSubmit={login}>
-        <div className="login-form">
-          <input
+      <Form
+        className="login-form"
+        name="loginForm"
+        layout="vertical"
+        onFinish={(values) => {
+          const formElement = document.querySelector("form");
+          if (formElement) {
+            formElement.dispatchEvent(
+              new Event("submit", { bubbles: true, cancelable: true })
+            );
+          }
+        }}
+      >
+        <Form.Item
+          label="Email"
+          name="email"
+          rules={[
+            { required: true, message: "Please enter your email!" },
+            { type: "email", message: "Please enter a valid email!" },
+          ]}
+        >
+          <Input
             name="email"
-            required
-            autoComplete={"true"}
             placeholder="Email"
-            type="email"
+            autoComplete="true"
             value={loginData.email}
             onChange={(e) =>
               setLoginData({ ...loginData, email: e.target.value })
             }
-          />{" "}
-          <input
+          />
+        </Form.Item>
+
+        <Form.Item
+          label="Password"
+          name="password"
+          rules={[{ required: true, message: "Please enter your password!" }]}
+        >
+          <Input.Password
             name="password"
-            required
-            autoComplete={"true"}
             placeholder="Password"
-            type="password"
+            autoComplete="true"
             value={loginData.password}
             onChange={(e) =>
               setLoginData({ ...loginData, password: e.target.value })
             }
           />
-        </div>
+        </Form.Item>
 
         <div className="login-create-forgot">
           <a href="/registration">Create Account</a> {""}
           <a href="/forgotPassword">Forgot Password?</a>
         </div>
 
-        <button type="submit" className="login-submit-button">
-          Login
-        </button>
-      </form>
+        <Form.Item>
+          <Button
+            type="primary"
+            htmlType="submit"
+            className="login-submit-button"
+            block
+          >
+            Login
+          </Button>
+        </Form.Item>
+      </Form>
+
+      <Form style={{ display: "none" }} onSubmit={login}>
+        <Input name="email" value={loginData.email} />
+        <Input name="password" value={loginData.password} />
+      </Form>
     </div>
   );
 }

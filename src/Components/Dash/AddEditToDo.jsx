@@ -78,11 +78,17 @@ const AddEditToDo = ({ mode, todo, onSaveSuccess }) => {
         flexDirection: "column",
       }}
     >
-      <div style={{ color: "red", fontWeight: "bold", fontSize: "2rem" }}>
+      <div style={{ color: "Green", fontWeight: "bold", fontSize: "2rem" }}>
         {mode === "add" ? "Add Task" : "Edit Task"}
       </div>
       <div className="form-container">
-        <Form form={form} onFinish={handleFormSubmit}>
+        <Form
+          form={form}
+          onFinish={handleFormSubmit}
+          labelCol={{ span: 2 }}
+          wrapperCol={{ span: 8 }}
+          labelAlign="left"
+        >
           <Row>
             <Col xs={24} sm={18} md={12} lg={24}>
               <Form.Item
@@ -107,6 +113,8 @@ const AddEditToDo = ({ mode, todo, onSaveSuccess }) => {
               <Form.Item name="deadLine" label="Deadline">
                 <DatePicker showTime onChange={onChange} />
               </Form.Item>
+              <br></br>
+
               <Button type="primary" htmlType="submit">
                 {mode === "add" ? "Save" : "Update"}
               </Button>
